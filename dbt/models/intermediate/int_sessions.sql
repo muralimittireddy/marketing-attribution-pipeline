@@ -3,7 +3,7 @@ WITH source AS (
     FROM {{ ref('stg_events') }}
 ),
 
--- Step 1: compute previous event timestamp per user
+--  compute previous event timestamp per user
 lagged AS (
     SELECT
         *,
@@ -11,7 +11,7 @@ lagged AS (
     FROM source
 ),
 
--- Step 2: compute session_number based on inactivity gap
+--  compute session_number based on inactivity gap
 sessions AS (
     SELECT
         *,

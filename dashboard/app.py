@@ -8,7 +8,7 @@ import os
 from dotenv import load_dotenv
 from bq_utils import load_live_panel_data
 
-dotenv_path = "/home/murali/dbt-environment/marketing-attribution-pipeline/.env"
+dotenv_path = "/path/to/env_file/.env"
 
 load_dotenv(dotenv_path)
 
@@ -25,16 +25,14 @@ st.set_page_config(
 )
 
 
-# auto-refresh every 5 seconds
 st_autorefresh(interval=5000, limit=None, key="live_refresh")
 
 
 st.title("📊 First vs Last Click Attribution Dashboard")
 
-# --- BigQuery Client ---
 client = bigquery.Client(project=PROJECT_ID)
 
-# --- Fetch Historical Data (Mart Table) ---
+
 @st.cache_data(ttl=60)
 def load_mart_data():
     return fetch_attribution_data(PROJECT_ID, DATASET, MART_TABLE,client)
@@ -45,8 +43,7 @@ if mart_data.empty:
     st.warning("No historical data found.")
     st.stop()
 
-# --- Metrics ---
-st.subheader("💰 Total Revenue Metrics (Historical 14-Day)")
+st.subheader("Total Revenue Metrics (Historical 14-Day)")
 
 col1, col2 = st.columns(2)
 with col1:
@@ -57,7 +54,7 @@ with col2:
     last_rev = mart_data.groupby("last_click_channel")["purchase_value"].sum().sum()
     st.metric("Total Revenue (Last Click)", f"${last_rev:,.2f}")
 
-# --- Time Series ---
+
 st.subheader("📅 14-Day Revenue Trend")
 
 first_click_daily = mart_data.groupby(["conversion_date", "first_click_channel"])["purchase_value"].sum().reset_index()
@@ -85,7 +82,7 @@ with tab2:
     )
     st.plotly_chart(fig2, use_container_width=True)
 
-# --- Channel Breakdown ---
+
 st.subheader("📈 Channel Breakdown")
 
 col3, col4 = st.columns(2)
@@ -102,7 +99,7 @@ with col4:
                   title="Last Click Channel Revenue", text_auto=True)
     st.plotly_chart(fig4, use_container_width=True)
 
-# --- Live Streaming Panel ---
+
 st.subheader("🔴 Live Streaming Events")
 
 @st.cache_data(ttl=1)

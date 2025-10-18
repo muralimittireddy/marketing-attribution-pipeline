@@ -13,7 +13,7 @@ WITH touchpoints_and_conversions AS (
         {% endif %}
 ),
 
--- Attribution calculation with tie-breaker
+
 attributed AS (
     SELECT
         conversion_id,
@@ -21,14 +21,13 @@ attributed AS (
         conversion_at,
         purchase_value,
 
-        -- First-click: earliest touchpoint, tie-break lexicographically by channel
         FIRST_VALUE(channel) OVER (
             PARTITION BY conversion_id
             ORDER BY touchpoint_at ASC, channel ASC
             ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
         ) AS first_click_channel,
 
-        -- Last-click: latest touchpoint, tie-break lexicographically by channel
+
         LAST_VALUE(channel IGNORE NULLS) OVER (
             PARTITION BY conversion_id
             ORDER BY touchpoint_at ASC, channel ASC

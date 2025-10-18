@@ -5,7 +5,7 @@ from google.cloud import bigquery
 import os
 from dotenv import load_dotenv
 
-dotenv_path = "/home/murali/dbt-environment/marketing-attribution-pipeline/.env"
+dotenv_path = "/path/to/env_file/.env"
 
 load_dotenv(dotenv_path)
 
@@ -16,10 +16,10 @@ STREAM_TABLE = os.getenv("STREAM_TABLE")
 client = bigquery.Client(project=PROJECT_ID)
 table_ref = client.dataset(DATASET).table(STREAM_TABLE)
 
-# Sample channels
+
 channels = ["Google / CPC", "Facebook / Social", "Email / Newsletter", "Direct / None"]
 
-# Generate a unique event id
+
 def generate_event_id(user_id):
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
     return f"{user_id}_{timestamp}"
