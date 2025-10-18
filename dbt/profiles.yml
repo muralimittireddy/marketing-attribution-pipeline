@@ -1,9 +1,9 @@
-my_dbt_project: 
+my_dbt_project:
   target: prod
   outputs:
     prod:
       type: bigquery
       method: oauth
-      project: gcp-cost-anomaly 
-      dataset: ga4_obfuscated_sample_ecommerce
+      project: project_id
+      dataset: dataset_name
       threads: 1
