@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: mart_conversions_attributed
+    description: "Compute first-click and last-click attribution per conversion."
+    columns:
+      - name: conversion_id
+        description: "Unique ID of the conversion event."
+        tests:
+          - unique
+          - not_null
+      - name: user_pseudo_id
+        description: "User identifier used for attribution."
+        tests:
+          - not_null
+      - name: conversion_at
+        description: "Conversion timestamp."
+        tests:
+          - not_null
+      - name: purchase_value
+        description: "Monetary value of the conversion."
+      - name: first_click_channel
+        description: "First-click channel assigned for the conversion."
+        tests:
+          - not_null
+      - name: last_click_channel
+        description: "Last-click channel assigned for the conversion."
+        tests:
+          - not_null

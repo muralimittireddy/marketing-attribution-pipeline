@@ -1,0 +1,29 @@
+name: 'my_dbt_project'
+version: '1.0'
+config-version: 2
+
+profile: 'my_dbt_project'
+
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+model-paths: ["models"]
+target-path: "target"
+clean-targets: ["target"]
+
+
+
+models:
+  my_dbt_project:
+    staging:
+      +materialized: view
+      +tags: ['staging']
+      +description: "Flatten GA4 events for downstream modeling."
+    intermediate:
+      +materialized: table
+      +tags: ['intermediate']
+      +description: "Join touchpoints and conversions, add session_id, deduplicate, apply lookback window."
+    marts:
+      +materialized: incremental
+      +unique_key: conversion_id
+      +tags: ['mart']
+      +description: "Compute first-click and last-click attribution per conversion."

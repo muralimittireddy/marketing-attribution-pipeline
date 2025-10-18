@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: stg_events
+    description: "Flatten GA4 events for downstream modeling. Each row is a unique event."
+    columns:
+      - name: user_pseudo_id
+        description: "GA4 pseudo ID representing a unique user. Assumes uniqueness per user session."
+        tests:
+          - not_null
+      - name: event_at
+        description: "Converted TIMESTAMP from event_timestamp."
+        tests:
+          - not_null
+      - name: event_date
+        description: "Event date for partitioning."
+        tests:
+          - not_null
+      - name: event_name
+        description: "Name of GA4 event (e.g., 'purchase')."
+        tests:
+          - not_null
+      - name: source
+        description: "Traffic source of the event."
+      - name: medium
+        description: "Traffic medium of the event."
+      - name: campaign
+        description: "Campaign name."
+      - name: purchase_value
+        description: "Value of purchase, if event is a conversion."
+      - name: currency
+        description: "Currency of the purchase value."
+      - name: event_id
+        description: "Unique ID per event (user_pseudo_id + event_timestamp)."
+        tests:
+          - not_null

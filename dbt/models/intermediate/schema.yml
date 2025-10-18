@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: int_sessions
+    description: "Combine touchpoints and conversions, add session_id, filter lookback window, deduplicate touchpoints."
+    columns:
+      - name: user_pseudo_id
+        description: "User identifier."
+        tests:
+          - not_null
+      - name: session_id
+        description: "Synthetic session number per user using 30-min inactivity gap."
+        tests:
+          - not_null
+      - name: channel
+        description: "Source/medium combination of touchpoint."
+        tests:
+          - not_null
+      - name: conversion_at
+        description: "Timestamp of conversion."
+      - name: purchase_value
+        description: "Conversion monetary value."
+      - name: conversion_id
+        description: "Unique ID for conversion."
+        tests:
+          - not_null
