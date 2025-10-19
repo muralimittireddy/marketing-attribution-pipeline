@@ -1,7 +1,7 @@
-import time
-import random
+import time, random, uuid
 from datetime import datetime, timedelta, timezone
 from google.cloud import bigquery
+from google.api_core import retry as retries
 import os
 from dotenv import load_dotenv
 
@@ -20,12 +20,15 @@ table_ref = client.dataset(DATASET).table(STREAM_TABLE)
 channels = ["Google / CPC", "Facebook / Social", "Email / Newsletter", "Direct / None"]
 
 
-def generate_event_id(user_id):
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
-    return f"{user_id}_{timestamp}"
+def new_conversion_id():
+    return str(uuid.uuid4())
 
-def stream_events(num_events=15):
-    rows_to_insert = []
+@retries.Retry(predicate=retries.if_exception_type(Exception), deadline=30)
+def insert_batch(rows):
+    return client.insert_rows_json(table_ref, rows, row_ids=[row['conversion_id'] for row in rows])
+
+
+def stream_events(num_events=15,sleep_between=0.15):
     for _ in range(num_events):
         user_id = f"user_{random.randint(1, 50)}"
         first_channel = random.choice(channels)
@@ -34,7 +37,7 @@ def stream_events(num_events=15):
         purchase_value = round(random.uniform(10, 500), 2)
 
         row = {
-            "conversion_id": generate_event_id(user_id),
+            "conversion_id": new_conversion_id(),
             "user_pseudo_id": user_id,
             "conversion_at": conversion_at.isoformat(),
             "purchase_value": purchase_value,
@@ -42,18 +45,13 @@ def stream_events(num_events=15):
             "last_click_channel": last_channel
         }
 
-        rows_to_insert.append(row)
+        errors = insert_batch([row])
+        time.sleep(sleep_between)
     
-    errors = client.insert_rows_json(
-        table_ref,
-        rows_to_insert,
-        row_ids=[row['conversion_id'] for row in rows_to_insert]
-    )
-
-    if not errors:
-        print(f"Successfully inserted a batch of {len(rows_to_insert)} events.")
-    else:
-        print("Encountered errors while inserting rows:", errors)
+        if not errors:
+            print(f"Successfully inserted {row["conversion_id"]} events.")
+        else:
+            print("Encountered errors while inserting rows:", errors)
 
 
 if __name__ == "__main__":
