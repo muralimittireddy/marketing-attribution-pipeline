@@ -5,7 +5,7 @@ from google.api_core import retry as retries
 import os
 from dotenv import load_dotenv
 
-dotenv_path = "/home/murali/dbt-env/marketing-attribution-pipeline/.env"
+dotenv_path = "/path/to/env/file/.env"
 
 load_dotenv(dotenv_path)
 
