@@ -5,7 +5,7 @@ from google.api_core import retry as retries
 import os
 from dotenv import load_dotenv
 
-dotenv_path = "/path/to/env_file/.env"
+dotenv_path = "/home/murali/dbt-env/marketing-attribution-pipeline/.env"
 
 load_dotenv(dotenv_path)
 
@@ -55,4 +55,4 @@ def stream_events(num_events=15,sleep_between=0.15):
 
 
 if __name__ == "__main__":
-    stream_events(random.randint(5, 20))
+    stream_events(random.randint(5, 20),5)

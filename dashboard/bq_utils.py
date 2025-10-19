@@ -3,6 +3,7 @@ import pandas as pd
 def fetch_attribution_data(project_id, dataset, table,client):
     query = f"""
         SELECT
+            conversion_id,
             DATE(conversion_at) AS conversion_date,
             first_click_channel,
             last_click_channel,

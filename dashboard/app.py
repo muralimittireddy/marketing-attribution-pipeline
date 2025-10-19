@@ -8,7 +8,7 @@ import os
 from dotenv import load_dotenv
 from bq_utils import load_live_panel_data
 
-dotenv_path = "/path/to/env_file/.env"
+dotenv_path = "/home/murali/dbt-env/marketing-attribution-pipeline/.env"
 
 load_dotenv(dotenv_path)
 
@@ -28,7 +28,7 @@ st.set_page_config(
 st_autorefresh(interval=5000, limit=None, key="live_refresh")
 
 
-st.title("📊 First vs Last Click Attribution Dashboard")
+st.title("📊  Attribution Dashboard")
 
 client = bigquery.Client(project=PROJECT_ID)
 
@@ -43,16 +43,47 @@ if mart_data.empty:
     st.warning("No historical data found.")
     st.stop()
 
-st.subheader("Total Revenue Metrics (Historical 14-Day)")
+st.subheader("Revenue by Channel — First vs Last Click")
 
-col1, col2 = st.columns(2)
-with col1:
-    first_rev = mart_data.groupby("first_click_channel")["purchase_value"].sum().sum()
-    st.metric("Total Revenue (First Click)", f"${first_rev:,.2f}")
 
-with col2:
-    last_rev = mart_data.groupby("last_click_channel")["purchase_value"].sum().sum()
-    st.metric("Total Revenue (Last Click)", f"${last_rev:,.2f}")
+# Compute revenue grouped by channel
+first_rev_by_channel = (
+    mart_data.groupby("first_click_channel", dropna=False)["purchase_value"]
+    .sum()
+    .reset_index()
+    .rename(columns={"first_click_channel": "channel", "purchase_value": "first_click_revenue"})
+)
+
+last_rev_by_channel = (
+    mart_data.groupby("last_click_channel", dropna=False)["purchase_value"]
+    .sum()
+    .reset_index()
+    .rename(columns={"last_click_channel": "channel", "purchase_value": "last_click_revenue"})
+)
+
+# Merge both for side-by-side comparison
+rev_comparison = pd.merge(first_rev_by_channel, last_rev_by_channel, on="channel", how="outer").fillna(0)
+
+# Melt for plotting
+rev_long = rev_comparison.melt(
+    id_vars="channel",
+    value_vars=["first_click_revenue", "last_click_revenue"],
+    var_name="Attribution_Model",
+    value_name="Revenue"
+)
+
+# Bar chart comparison
+fig = px.bar(
+    rev_long,
+    x="channel",
+    y="Revenue",
+    color="Attribution_Model",
+    barmode="group",
+    text_auto='.2s',
+    title="Revenue by Channel — First vs Last Click Comparison",
+)
+st.plotly_chart(fig, use_container_width=True)
+
 
 
 st.subheader("📅 14-Day Revenue Trend")
