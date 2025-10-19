@@ -173,6 +173,29 @@ This configuration grants the VM the necessary permissions to interact with othe
     - Run the Streamlit application:
 
           streamlit run app.py
+
+## 🧠 Modeling Assumptions
+
+  - **Lookback Window**: A 30-day lookback window is applied. Touchpoints older than 30 days before a conversion are not eligible for attribution credit.
+
+  - **Identity Resolution**: User identity is based solely on user_pseudo_id, which assumes a consistent user experience on a single device and browser.
+
+  - **Tie-breakers**: In the rare event of a timestamp tie, the model uses channel ASC as a secondary sort key to ensure the results are deterministic.
+
+## ⚙️ Runbook & Operational Readiness
+
+  - **Failure Handling**
+    
+    - **dbt Failures**: A failed dbt run or dbt test will exit with an error, and the logs will specify the exact model and SQL issue.
+
+    - **Streaming Failures**: The Python script is resilient to transient network issues, as it includes an automatic retry mechanism for BigQuery insertions.
+
+  - **Monitoring Suggestions**
+    
+    - **Orchestration**: In production, the dbt pipeline should be run on a schedule using a tool like dbt Cloud, Airflow, or Google Cloud Scheduler.
+
+    - **Alerting**: The orchestrator should be configured to send failure alerts via tools like Slack.
+
 ## 📊 Dashboard
 
 The interactive dashboard provides insights from the attribution models and a live view of streamed events.
