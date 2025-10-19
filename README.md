@@ -29,7 +29,7 @@ The pipeline follows a modern data stack architecture, moving data from raw stor
 5. Presentation: A Streamlit application (app.py) queries the final dbt models and the streaming table to populate a real-time dashboard.
 
 
-![Project Architecture](architecture-diagram/real_time_attribution_architecture.png)
+![Project Architecture](images/real_time_attribution_architecture.png)
 
 ---
 
@@ -53,6 +53,7 @@ The pipeline follows a modern data stack architecture, moving data from raw stor
     ├── dbt/                    # dbt project for data transformation
     ├── streaming_script/       # Python script for streaming data to BigQuery
     ├── dashboard/              # Streamlit application for the dashboard
+    ├── images/                 
 
 ---
 
@@ -132,6 +133,10 @@ This configuration grants the VM the necessary permissions to interact with othe
   
          dbt run
 
+   - Run the data quality tests:
+  
+         dbt test
+
 2. **Set up BigQuery Table for Streaming**:
 
    - Execute the following SQL query in your BigQuery console to create the table for streaming data:
@@ -143,7 +148,10 @@ This configuration grants the VM the necessary permissions to interact with othe
           purchase_value FLOAT64,
           first_click_channel STRING,
           last_click_channel STRING
-          );
+          )
+         PARTITION BY DATE(conversion_at)
+         CLUSTER BY conversion_id;
+     
      - Note: Replace your-gcp-project-id and your-bigquery-dataset with your actual project ID and dataset name.
 
 3. **Run the Streaming Script**:
@@ -165,3 +173,26 @@ This configuration grants the VM the necessary permissions to interact with othe
     - Run the Streamlit application:
 
           streamlit run app.py
+## 📊 Dashboard
+
+The interactive dashboard provides insights from the attribution models and a live view of streamed events.
+
+  - The dashboard includes:
+
+      - First vs Last totals conversion totals by channel.
+
+      - A 14-day trend line of attributed conversions.
+   
+      - Channel Breakdown
+
+      - A Live panel that updates to show data from the streaming script.
+
+![Dashboard](images/first_vs_last_click_totals.png)
+
+![Dashboard](images/14_day_revenue_trend_first_click.png)
+
+![Dashboard](images/14_day_revenue_trend_last_click.png)
+
+![Dashboard](images/channel_breakdown.png)
+
+![Dashboard](images/live_streaming_data.png)
