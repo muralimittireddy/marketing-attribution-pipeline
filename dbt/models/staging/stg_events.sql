@@ -9,7 +9,7 @@ SELECT
     MAX(IF(param.key = 'value', CAST(param.value.double_value AS FLOAT64), NULL)) AS purchase_value,
     MAX(IF(param.key = 'currency', param.value.string_value, NULL)) AS currency,
     CASE WHEN event_name = 'purchase' THEN TRUE ELSE FALSE END AS is_conversion,
-    CONCAT(user_pseudo_id, '_', event_timestamp, '_', event_bundle_sequence_id) AS event_id
+    CONCAT(user_pseudo_id, '_', event_timestamp, '_', event_name) AS event_id
 FROM
     `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
 CROSS JOIN
@@ -18,5 +18,4 @@ CROSS JOIN
 GROUP BY
     user_pseudo_id,
     event_timestamp,
-    event_name,
-    event_bundle_sequence_id
+    event_name

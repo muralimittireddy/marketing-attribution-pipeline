@@ -34,3 +34,4 @@ models:
         description: "Unique ID per event (user_pseudo_id + event_timestamp)."
         tests:
           - not_null
+          - unique
